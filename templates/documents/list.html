@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Master Register - Document Management System{% endblock %}
+
+{% block page_title %}Master Register{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" class="form-control" name="search" placeholder="Search documents..." value="{{ request.args.get('search', '') }}">
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" name="status">
+                        <option value="">All Statuses</option>
+                        <option value="Active" {% if request.args.get('status') == 'Active' %}selected{% endif %}>Active</option>
+                        <option value="Active — Pending Signature" {% if request.args.get('status') == 'Active — Pending Signature' %}selected{% endif %}>Active — Pending Signature</option>
+                        <option value="Drafted — Pending Send" {% if request.args.get('status') == 'Drafted — Pending Send' %}selected{% endif %}>Drafted — Pending Send</option>
+                        <option value="Draft — Pending Review" {% if request.args.get('status') == 'Draft — Pending Review' %}selected{% endif %}>Draft — Pending Review</option>
+                        <option value="Superseded" {% if request.args.get('status') == 'Superseded' %}selected{% endif %}>Superseded</option>
+                        <option value="Historical" {% if request.args.get('status') == 'Historical' %}selected{% endif %}>Historical</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" name="distribution">
+                        <option value="">All Distributions</option>
+                        <option value="Internal" {% if request.args.get('distribution') == 'Internal' %}selected{% endif %}>Internal</option>
+                        <option value="External" {% if request.args.get('distribution') == 'External' %}selected{% endif %}>External</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Document ID</th>
+                            <th>Name</th>
+                            <th>Format</th>
+                            <th>Status</th>
+                            <th>Distribution</th>
+                            <th>Current Revision</th>
+                            <th>Last Revised</th>
+                            <th>Owner Party</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for doc in documents %}
+                        <tr>
+                            <td><strong>{{ doc.doc_id }}</strong></td>
+                            <td>{{ doc.name }}</td>
+                            <td>{{ doc.format }}</td>
+                            <td>
+                                <span class="badge-status {{ get_status_badge(doc.status) }}">{{ doc.status }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ doc.distribution }}</span>
+                            </td>
+                            <td>{{ doc.current_revision or 'N/A' }}</td>
+                            <td>{{ doc.last_revised_date or 'N/A' }}</td>
+                            <td>{{ doc.owner_party }}</td>
+                            <td>
+                                <a href="{{ url_for('documents.document_detail', doc_id=doc.doc_id) }}" class="btn btn-sm btn-primary">View</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if not documents %}
+            <div class="alert alert-info">No documents found.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function get_status_badge(status) {
+    const badges = {
+        'Active': 'badge-active',
+        'Active — Pending Signature': 'badge-pending',
+        'Drafted — Pending Send': 'badge-draft',
+        'Draft — Pending Review': 'badge-draft',
+        'Superseded': 'badge-superseded',
+        'Historical': 'badge-historical'
+    };
+    return badges[status] || 'badge-secondary';
+}
+</script>
+{% endblock %}

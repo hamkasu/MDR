@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Document Management System{% endblock %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total Documents</h5>
+                    <h2 class="text-primary">{{ total_documents }}</h2>
+                </div>
+            </div>
+        </div>
+
+        {% for status, count in status_counts.items() %}
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ status }}</h5>
+                    <h2 class="text-secondary">{{ count }}</h2>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if unresolved_facts %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="alert alert-warning" role="alert">
+                <h4 class="alert-heading"><i class="fas fa-exclamation-triangle"></i> Unresolved Facts</h4>
+                <p>There are {{ unresolved_facts|length }} unresolved Source of Truth entries that need attention.</p>
+                <a href="{{ url_for('source_of_truth.sot_list', status='Unresolved') }}" class="btn btn-sm btn-warning">View Unresolved Facts</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if pending_send %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <h3>Documents Drafted — Pending Send</h3>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Document ID</th>
+                            <th>Name</th>
+                            <th>Current Revision</th>
+                            <th>Last Revised</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for doc in pending_send %}
+                        <tr>
+                            <td><strong>{{ doc.doc_id }}</strong></td>
+                            <td>{{ doc.name }}</td>
+                            <td>{{ doc.current_revision or 'N/A' }}</td>
+                            <td>{{ doc.last_revised_date or 'N/A' }}</td>
+                            <td>
+                                <a href="{{ url_for('documents.document_detail', doc_id=doc.doc_id) }}" class="btn btn-sm btn-primary">View</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if pending_signature %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <h3>Documents Active — Pending Signature</h3>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Document ID</th>
+                            <th>Name</th>
+                            <th>Current Revision</th>
+                            <th>Last Revised</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for doc in pending_signature %}
+                        <tr>
+                            <td><strong>{{ doc.doc_id }}</strong></td>
+                            <td>{{ doc.name }}</td>
+                            <td>{{ doc.current_revision or 'N/A' }}</td>
+                            <td>{{ doc.last_revised_date or 'N/A' }}</td>
+                            <td>
+                                <a href="{{ url_for('documents.document_detail', doc_id=doc.doc_id) }}" class="btn btn-sm btn-primary">View</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

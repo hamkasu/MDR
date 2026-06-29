@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}{{ transmittal.tx_id }} - Document Management System{% endblock %}
+
+{% block page_title %}Transmittal {{ transmittal.tx_id }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Transmittal Details</h5>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p><strong>Transmittal ID:</strong> {{ transmittal.tx_id }}</p>
+                            <p><strong>Date Sent:</strong> {{ transmittal.date_sent.strftime('%Y-%m-%d') }}</p>
+                            <p><strong>Recipient:</strong> {{ transmittal.recipient_party }}</p>
+                            <p><strong>Method:</strong> <span class="badge bg-secondary">{{ transmittal.method }}</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Status:</strong>
+                                {% if transmittal.acknowledged == 'Pending' %}
+                                <span class="badge bg-warning">Pending</span>
+                                {% elif transmittal.acknowledged == 'Acknowledged' %}
+                                <span class="badge bg-success">Acknowledged</span>
+                                {% else %}
+                                <span class="badge bg-danger">Unconfirmed</span>
+                                {% endif %}
+                            </p>
+                            <p><strong>Revision Sent:</strong> {{ transmittal.revision_sent or 'N/A' }}</p>
+                            <p><strong>Created:</strong> {{ transmittal.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                            <p><strong>Updated:</strong> {{ transmittal.updated_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <h6>Documents Included:</h6>
+                    <ul class="list-group mb-3">
+                        {% for doc in transmittal.documents %}
+                        <li class="list-group-item">
+                            <strong>{{ doc.doc_id }}</strong> - {{ doc.name }}
+                            <a href="{{ url_for('documents.document_detail', doc_id=doc.doc_id) }}" class="btn btn-sm btn-primary float-end">View</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+
+                    {% if transmittal.purpose %}
+                    <div class="mb-3">
+                        <h6>Purpose:</h6>
+                        <p>{{ transmittal.purpose }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if transmittal.notes %}
+                    <div class="mb-3">
+                        <h6>Notes:</h6>
+                        <p>{{ transmittal.notes }}</p>
+                    </div>
+                    {% endif %}
+
+                    <div class="d-flex gap-2">
+                        {% if current_user.role in ['admin', 'consultant_full'] %}
+                        <a href="{{ url_for('transmittal.edit_transmittal', tx_id=transmittal.tx_id) }}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        {% endif %}
+                        <a href="{{ url_for('transmittal.transmittal_list') }}" class="btn btn-secondary">Back</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

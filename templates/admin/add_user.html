@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Add User - Document Management System{% endblock %}
+
+{% block page_title %}Add New User{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Create New User</h5>
+
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username *</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email *</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="role" class="form-label">Role *</label>
+                            <select class="form-select" id="role" name="role" required>
+                                <option value="">Select a role...</option>
+                                {% for role in roles %}
+                                <option value="{{ role }}">{{ role }}</option>
+                                {% endfor %}
+                            </select>
+                            <small class="text-muted">
+                                <br><strong>admin:</strong> Full access to everything<br>
+                                <strong>consultant_full:</strong> Can view/upload to all documents<br>
+                                <strong>consultant_limited:</strong> Can only access assigned documents
+                            </small>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">Create User</button>
+                            <a href="{{ url_for('admin.users_list') }}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

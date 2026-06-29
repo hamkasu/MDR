@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Edit User - Document Management System{% endblock %}
+
+{% block page_title %}Edit User - {{ user.username }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Edit User</h5>
+
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" value="{{ user.username }}" disabled>
+                            <small class="text-muted">Username cannot be changed.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email *</label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="role" class="form-label">Role *</label>
+                            <select class="form-select" id="role" name="role" required>
+                                {% for role in roles %}
+                                <option value="{{ role }}" {% if user.role == role %}selected{% endif %}>{{ role }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        {% if user.role == 'consultant_limited' %}
+                        <div class="mb-3">
+                            <label for="assigned_documents" class="form-label">Assigned Documents</label>
+                            <div class="alert alert-info">
+                                Check the documents this user can access:
+                            </div>
+                            <div style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 5px;">
+                                {% for doc in documents %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="doc_{{ doc.doc_id }}" name="assigned_documents" value="{{ doc.doc_id }}" {% if doc in user.assigned_documents %}checked{% endif %}>
+                                    <label class="form-check-label" for="doc_{{ doc.doc_id }}">
+                                        {{ doc.doc_id }} - {{ doc.name }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <a href="{{ url_for('admin.users_list') }}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

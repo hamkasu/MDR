@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}New Transmittal - Document Management System{% endblock %}
+
+{% block page_title %}Create New Transmittal{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Log New Transmittal</h5>
+
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="date_sent" class="form-label">Date Sent *</label>
+                            <input type="date" class="form-control" id="date_sent" name="date_sent" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="documents" class="form-label">Documents *</label>
+                            <div style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 5px;">
+                                {% for doc in documents %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="doc_{{ doc.doc_id }}" name="documents" value="{{ doc.doc_id }}">
+                                    <label class="form-check-label" for="doc_{{ doc.doc_id }}">
+                                        {{ doc.doc_id }} - {{ doc.name }} (Rev {{ doc.current_revision or 'N/A' }})
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <small class="text-muted d-block mt-2">Select at least one document to transmit.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="revision_sent" class="form-label">Revision Sent</label>
+                            <input type="text" class="form-control" id="revision_sent" name="revision_sent" placeholder="e.g., Rev 2">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="recipient_party" class="form-label">Recipient Party *</label>
+                            <input type="text" class="form-control" id="recipient_party" name="recipient_party" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="method" class="form-label">Method *</label>
+                            <select class="form-select" id="method" name="method" required>
+                                <option value="">Select method...</option>
+                                {% for method in methods %}
+                                <option value="{{ method }}">{{ method }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="purpose" class="form-label">Purpose</label>
+                            <textarea class="form-control" id="purpose" name="purpose" rows="3" placeholder="Why is this being transmitted?"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Notes</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Any additional notes..."></textarea>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">Create Transmittal</button>
+                            <a href="{{ url_for('transmittal.transmittal_list') }}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

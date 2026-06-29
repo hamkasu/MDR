@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Revision - Document Management System{% endblock %}
+
+{% block page_title %}Upload New Revision - {{ document.name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Upload New Revision</h5>
+
+                    <div class="alert alert-info mb-4">
+                        <strong>Document:</strong> {{ document.doc_id }} - {{ document.name }}<br>
+                        <strong>Current Revision:</strong> {{ document.current_revision or 'None' }}<br>
+                        <strong>Next Revision:</strong> Rev {{ document.revisions|length + 1 }}
+                    </div>
+
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="file" class="form-label">Select File *</label>
+                            <input type="file" class="form-control" id="file" name="file" required>
+                            <small class="text-muted">Upload the revised document file.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="summary_of_changes" class="form-label">Summary of Changes</label>
+                            <textarea class="form-control" id="summary_of_changes" name="summary_of_changes" rows="4" placeholder="Describe what changed in this revision..."></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="trigger" class="form-label">Trigger / Reason for Revision</label>
+                            <input type="text" class="form-control" id="trigger" name="trigger" placeholder="e.g., Client feedback, Design change, Regulatory requirement...">
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-upload"></i> Upload Revision
+                            </button>
+                            <a href="{{ url_for('documents.document_detail', doc_id=document.doc_id) }}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

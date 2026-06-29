@@ -1,8 +1,9 @@
 from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_login import LoginManager, current_user, login_required
-from flask_migrate import Migrate
+from flask_migrate import Migrate, upgrade
 from config import config
 import os
+import logging
 
 from models import db, User
 from cli import register_cli_commands
@@ -27,6 +28,21 @@ def create_app(config_name=None):
 
     with app.app_context():
         register_cli_commands(app)
+
+        migrations_run = False
+
+        @app.before_request
+        def run_migrations_if_needed():
+            nonlocal migrations_run
+            if not migrations_run and config_name == 'production':
+                try:
+                    from flask_migrate import current
+                    if current() is None:
+                        upgrade()
+                    migrations_run = True
+                except Exception as e:
+                    logging.warning(f"Could not run migrations on startup: {e}")
+                    migrations_run = True
 
         from routes.auth import auth_bp
         from routes.main import main_bp

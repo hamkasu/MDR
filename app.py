@@ -8,6 +8,8 @@ import logging
 from models import db, User
 from cli import register_cli_commands
 
+logger = logging.getLogger(__name__)
+
 def create_app(config_name=None):
     if config_name is None:
         config_name = os.environ.get('FLASK_ENV', 'development')
@@ -29,20 +31,15 @@ def create_app(config_name=None):
     with app.app_context():
         register_cli_commands(app)
 
-        migrations_run = False
-
-        @app.before_request
-        def run_migrations_if_needed():
-            nonlocal migrations_run
-            if not migrations_run and config_name == 'production':
-                try:
-                    from flask_migrate import current
-                    if current() is None:
-                        upgrade()
-                    migrations_run = True
-                except Exception as e:
-                    logging.warning(f"Could not run migrations on startup: {e}")
-                    migrations_run = True
+        # Run migrations on startup in production
+        if os.environ.get('FLASK_ENV') == 'production':
+            try:
+                logger.info("Running database migrations...")
+                upgrade()
+                logger.info("Migrations completed successfully")
+            except Exception as e:
+                logger.error(f"Migration failed: {e}")
+                logger.warning("App starting anyway - check database manually")
 
         from routes.auth import auth_bp
         from routes.main import main_bp

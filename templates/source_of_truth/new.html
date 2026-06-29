@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}New Source of Truth - Document Management System{% endblock %}
+
+{% block page_title %}Create New Source of Truth Entry{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Track New Fact</h5>
+
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="fact_name" class="form-label">Fact Name *</label>
+                            <input type="text" class="form-control" id="fact_name" name="fact_name" placeholder="e.g., Site frontage dimension: 150m" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="master_document_id" class="form-label">Master Document *</label>
+                            <select class="form-select" id="master_document_id" name="master_document_id" required>
+                                <option value="">Select the master document...</option>
+                                {% for doc in documents %}
+                                <option value="{{ doc.doc_id }}">{{ doc.doc_id }} - {{ doc.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <small class="text-muted d-block mt-1">This is the authoritative source for this fact.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="also_appears_in" class="form-label">Also Appears In</label>
+                            <div style="max-height: 250px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 5px;">
+                                {% for doc in documents %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="doc_{{ doc.doc_id }}" name="also_appears_in" value="{{ doc.doc_id }}">
+                                    <label class="form-check-label" for="doc_{{ doc.doc_id }}">
+                                        {{ doc.doc_id }} - {{ doc.name }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <small class="text-muted d-block mt-2">Select other documents where this fact needs to be kept in sync.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="sync_rule" class="form-label">Sync Rule / Notes</label>
+                            <textarea class="form-control" id="sync_rule" name="sync_rule" rows="4" placeholder="Document the rule for keeping this fact in sync across all locations..."></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="Unresolved">Unresolved</option>
+                                <option value="Resolved">Resolved</option>
+                            </select>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">Create Entry</button>
+                            <a href="{{ url_for('source_of_truth.sot_list') }}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

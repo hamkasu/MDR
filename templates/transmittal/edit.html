@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Transmittal - Document Management System{% endblock %}
+
+{% block page_title %}Edit Transmittal {{ transmittal.tx_id }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Edit Transmittal</h5>
+
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="revision_sent" class="form-label">Revision Sent</label>
+                            <input type="text" class="form-control" id="revision_sent" name="revision_sent" value="{{ transmittal.revision_sent or '' }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="acknowledged" class="form-label">Acknowledged Status *</label>
+                            <select class="form-select" id="acknowledged" name="acknowledged" required>
+                                {% for choice in acknowledged_choices %}
+                                <option value="{{ choice }}" {% if transmittal.acknowledged == choice %}selected{% endif %}>{{ choice }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Notes</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="4">{{ transmittal.notes or '' }}</textarea>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <a href="{{ url_for('transmittal.transmittal_detail', tx_id=transmittal.tx_id) }}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

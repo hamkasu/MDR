@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Transmittal Log - Document Management System{% endblock %}
+
+{% block page_title %}Transmittal Log{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <a href="?acknowledged=" class="btn btn-outline-secondary {% if not request.args.get('acknowledged') %}active{% endif %}">All</a>
+                    <a href="?acknowledged=Pending" class="btn btn-outline-warning {% if request.args.get('acknowledged') == 'Pending' %}active{% endif %}">Pending</a>
+                    <a href="?acknowledged=Acknowledged" class="btn btn-outline-success {% if request.args.get('acknowledged') == 'Acknowledged' %}active{% endif %}">Acknowledged</a>
+                    <a href="?acknowledged=Unconfirmed" class="btn btn-outline-danger {% if request.args.get('acknowledged') == 'Unconfirmed' %}active{% endif %}">Unconfirmed</a>
+                </div>
+                <a href="{{ url_for('transmittal.new_transmittal') }}" class="btn btn-success">
+                    <i class="fas fa-plus"></i> New Transmittal
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Transmittal ID</th>
+                            <th>Date Sent</th>
+                            <th>Recipient</th>
+                            <th>Method</th>
+                            <th>Acknowledged</th>
+                            <th>Documents</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tx in transmittals %}
+                        <tr>
+                            <td><strong>{{ tx.tx_id }}</strong></td>
+                            <td>{{ tx.date_sent.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ tx.recipient_party }}</td>
+                            <td>
+                                <span class="badge bg-secondary">{{ tx.method }}</span>
+                            </td>
+                            <td>
+                                {% if tx.acknowledged == 'Pending' %}
+                                <span class="badge bg-warning">Pending</span>
+                                {% elif tx.acknowledged == 'Acknowledged' %}
+                                <span class="badge bg-success">Acknowledged</span>
+                                {% else %}
+                                <span class="badge bg-danger">Unconfirmed</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% for doc in tx.documents %}
+                                <span class="badge bg-info">{{ doc.doc_id }}</span>
+                                {% endfor %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('transmittal.transmittal_detail', tx_id=tx.tx_id) }}" class="btn btn-sm btn-primary">View</a>
+                                {% if current_user.role in ['admin', 'consultant_full'] %}
+                                <a href="{{ url_for('transmittal.edit_transmittal', tx_id=tx.tx_id) }}" class="btn btn-sm btn-warning">Edit</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if not transmittals %}
+            <div class="alert alert-info">No transmittals found.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}{{ document.name }} - Document Management System{% endblock %}
+
+{% block page_title %}{{ document.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="card-title">Document Details</h5>
+                            <p><strong>Document ID:</strong> {{ document.doc_id }}</p>
+                            <p><strong>Name:</strong> {{ document.name }}</p>
+                            <p><strong>Format:</strong> {{ document.format }}</p>
+                            <p><strong>Owner Party:</strong> {{ document.owner_party }}</p>
+                            <p><strong>Distribution:</strong> <span class="badge bg-info">{{ document.distribution }}</span></p>
+                            <p><strong>Description:</strong> {{ document.description or 'N/A' }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="card-title">Status</h5>
+                            <p><strong>Current Status:</strong> <span class="badge-status {{ get_status_badge(document.status) }}">{{ document.status }}</span></p>
+                            <p><strong>Current Revision:</strong> {{ document.current_revision or 'N/A' }}</p>
+                            <p><strong>Last Revised:</strong> {{ document.last_revised_date or 'N/A' }}</p>
+                            <p><strong>Created:</strong> {{ document.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                            <p><strong>Last Updated:</strong> {{ document.updated_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if facts_as_master or facts_appears_in %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                <strong><i class="fas fa-link"></i> Source of Truth Alert</strong><br>
+                This document contains tracked facts that also appear elsewhere — check before editing.
+                {% if facts_as_master %}
+                <div class="mt-2"><strong>Master Facts:</strong>
+                    {% for fact in facts_as_master %}
+                    <br><small>• {{ fact.fact_name }}</small>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if facts_appears_in %}
+                <div class="mt-2"><strong>Also Appears In:</strong>
+                    {% for fact in facts_appears_in %}
+                    <br><small>• {{ fact.fact_name }}</small>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3>Revision History</h3>
+                {% if current_user.can_upload_revision(document) %}
+                <a href="{{ url_for('documents.upload_revision', doc_id=document.doc_id) }}" class="btn btn-success">
+                    <i class="fas fa-upload"></i> Upload New Revision
+                </a>
+                {% endif %}
+            </div>
+
+            {% if document.revisions %}
+            <div class="timeline">
+                {% for revision in document.revisions|reverse %}
+                <div class="card mb-3">
+                    <div class="card-header bg-light">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <h6 class="mb-0">
+                                    <strong>{{ revision.revision_number }}</strong>
+                                    <small class="text-muted">{{ revision.revision_date.strftime('%Y-%m-%d') }}</small>
+                                </h6>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <small class="text-muted">Uploaded by: {{ revision.uploader.username }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Original Filename:</strong> {{ revision.original_filename }}</p>
+                        <p><strong>Trigger:</strong> {{ revision.trigger or 'N/A' }}</p>
+                        <p><strong>Summary of Changes:</strong> {{ revision.summary_of_changes or 'N/A' }}</p>
+                        <p><strong>Uploaded:</strong> {{ revision.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                        <a href="{{ url_for('documents.download_revision', doc_id=document.doc_id, revision_id=revision.id) }}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-download"></i> Download
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-warning">No revisions found for this document.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function get_status_badge(status) {
+    const badges = {
+        'Active': 'badge-active',
+        'Active — Pending Signature': 'badge-pending',
+        'Drafted — Pending Send': 'badge-draft',
+        'Draft — Pending Review': 'badge-draft',
+        'Superseded': 'badge-superseded',
+        'Historical': 'badge-historical'
+    };
+    return badges[status] || 'badge-secondary';
+}
+</script>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Source of Truth - Document Management System{% endblock %}
+
+{% block page_title %}Source of Truth{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <a href="?status=" class="btn btn-outline-secondary {% if not request.args.get('status') %}active{% endif %}">All</a>
+                    <a href="?status=Resolved" class="btn btn-outline-success {% if request.args.get('status') == 'Resolved' %}active{% endif %}">Resolved</a>
+                    <a href="?status=Unresolved" class="btn btn-outline-danger {% if request.args.get('status') == 'Unresolved' %}active{% endif %}">Unresolved</a>
+                </div>
+                <a href="{{ url_for('source_of_truth.new_sot') }}" class="btn btn-success">
+                    <i class="fas fa-plus"></i> New Entry
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Fact Name</th>
+                            <th>Master Document</th>
+                            <th>Also Appears In</th>
+                            <th>Status</th>
+                            <th>Sync Rule</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for fact in facts %}
+                        <tr>
+                            <td><strong>{{ fact.fact_name }}</strong></td>
+                            <td>
+                                <a href="{{ url_for('documents.document_detail', doc_id=fact.master_document_id) }}">
+                                    {{ fact.master_document.name }}
+                                </a>
+                            </td>
+                            <td>
+                                {% for doc in fact.related_documents %}
+                                <span class="badge bg-info">{{ doc.doc_id }}</span>
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% if fact.status == 'Resolved' %}
+                                <span class="badge bg-success">Resolved</span>
+                                {% else %}
+                                <span class="badge bg-danger">Unresolved</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small>{{ fact.sync_rule[:50] }}{% if fact.sync_rule|length > 50 %}...{% endif %}</small>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('source_of_truth.edit_sot', fact_id=fact.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                                <form method="POST" action="{{ url_for('source_of_truth.delete_sot', fact_id=fact.id) }}" style="display: inline;">
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if not facts %}
+            <div class="alert alert-info">No Source of Truth entries found.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

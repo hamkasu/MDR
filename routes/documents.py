@@ -14,7 +14,7 @@ def check_access(f):
         doc_id = kwargs.get('doc_id')
         doc = Document.query.get_or_404(doc_id)
 
-        if current_user.role == 'consultant_limited':
+        if current_user.is_authenticated and current_user.role == 'consultant_limited':
             if doc not in current_user.assigned_documents:
                 flash('You do not have access to this document.', 'danger')
                 return redirect(url_for('main.dashboard'))

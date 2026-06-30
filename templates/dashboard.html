@@ -6,21 +6,48 @@
 
 {% block content %}
 <div class="container-fluid">
-    <div class="row">
-        <div class="col-md-3 mb-4">
-            <div class="card">
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex gap-2 flex-wrap">
+                {% if current_user.is_authenticated and current_user.role in ['admin', 'consultant_full'] %}
+                <a href="{{ url_for('documents.documents_list') }}" class="btn btn-success">
+                    <i class="fas fa-plus"></i> New Document
+                </a>
+                {% if current_user.role == 'admin' %}
+                <a href="{{ url_for('admin.import_excel') }}" class="btn btn-info">
+                    <i class="fas fa-upload"></i> Import Excel MDR
+                </a>
+                <a href="{{ url_for('admin.add_user') }}" class="btn btn-secondary">
+                    <i class="fas fa-user-plus"></i> Add User
+                </a>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card h-100 border-primary">
                 <div class="card-body">
-                    <h5 class="card-title">Total Documents</h5>
-                    <h2 class="text-primary">{{ total_documents }}</h2>
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="text-muted mb-1">Total Documents</h6>
+                            <h2 class="text-primary">{{ total_documents }}</h2>
+                        </div>
+                        <i class="fas fa-file-alt text-primary opacity-50" style="font-size: 2rem;"></i>
+                    </div>
                 </div>
             </div>
         </div>
 
         {% for status, count in status_counts.items() %}
-        <div class="col-md-3 mb-4">
-            <div class="card">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card h-100">
                 <div class="card-body">
-                    <h5 class="card-title">{{ status }}</h5>
+                    <h6 class="text-muted mb-1">{{ status }}</h6>
                     <h2 class="text-secondary">{{ count }}</h2>
                 </div>
             </div>

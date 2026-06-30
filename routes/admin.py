@@ -154,16 +154,20 @@ def import_excel():
                         skipped += 1
                         continue
 
+                    doc_format = row[headers.get('format', 1) - 1].value if 'format' in headers else '.docx'
                     description = row[headers.get('description', 1) - 1].value if 'description' in headers else ''
                     status = row[headers.get('status', 1) - 1].value if 'status' in headers else 'Draft'
                     distribution = row[headers.get('distribution', 1) - 1].value if 'distribution' in headers else 'Internal'
+                    owner_party = row[headers.get('owner', 1) - 1].value if 'owner' in headers else 'Internal'
 
                     doc = Document(
                         doc_id=str(doc_id),
                         name=str(doc_name),
+                        format=doc_format or '.docx',
                         description=description or '',
                         status=status or 'Draft',
                         distribution=distribution or 'Internal',
+                        owner_party=owner_party or 'Internal',
                         created_at=datetime.utcnow(),
                         updated_at=datetime.utcnow()
                     )
@@ -201,7 +205,7 @@ def download_template():
         ws = wb.active
         ws.title = 'Documents'
 
-        headers = ['Document ID', 'Document Name', 'Description', 'Status', 'Distribution']
+        headers = ['Document ID', 'Document Name', 'Format', 'Status', 'Distribution', 'Owner', 'Description']
         ws.append(headers)
 
         header_fill = PatternFill(start_color='4472C4', end_color='4472C4', fill_type='solid')
@@ -213,19 +217,21 @@ def download_template():
             cell.alignment = Alignment(horizontal='center', vertical='center')
 
         sample_data = [
-            ['DOC-001', 'Project Charter', 'Initial project charter document', 'Active', 'Internal'],
-            ['DOC-002', 'Safety Manual', 'Site safety procedures and guidelines', 'Active', 'External'],
-            ['DOC-003', 'Technical Specifications', 'Detailed technical requirements', 'Draft', 'Internal'],
+            ['DOC-01', 'SPV Structuring Proposal', '.docx', 'Tracked — file not held', 'Internal', 'Internal', 'Generic five-party SPV model'],
+            ['DOC-02', 'Salt Plant SPV & Sukuk Proposal', '.docx', 'Tracked — file not held', 'Internal', 'Internal', 'SPV model applied to project'],
+            ['DOC-06', 'Mutual NDA — AASB', '.docx', 'Active — Pending Signature', 'External (AASB)', 'Calmic', 'Mutual NDA; AASB as Project Consultant'],
         ]
 
         for row_data in sample_data:
             ws.append(row_data)
 
-        ws.column_dimensions['A'].width = 15
-        ws.column_dimensions['B'].width = 30
-        ws.column_dimensions['C'].width = 40
-        ws.column_dimensions['D'].width = 15
-        ws.column_dimensions['E'].width = 15
+        ws.column_dimensions['A'].width = 12
+        ws.column_dimensions['B'].width = 35
+        ws.column_dimensions['C'].width = 10
+        ws.column_dimensions['D'].width = 25
+        ws.column_dimensions['E'].width = 18
+        ws.column_dimensions['F'].width = 15
+        ws.column_dimensions['G'].width = 40
 
         template_path = '/tmp/MDR_Template.xlsx'
         wb.save(template_path)

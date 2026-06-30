@@ -16,11 +16,13 @@
                         <h6 class="alert-heading"><i class="fas fa-info-circle"></i> Excel File Format</h6>
                         <p class="mb-2">Your Excel file should contain the following columns:</p>
                         <ul class="mb-0">
-                            <li><strong>Document ID</strong> (required) - Unique identifier for the document</li>
-                            <li><strong>Document Name</strong> (required) - Title of the document</li>
-                            <li><strong>Description</strong> (optional) - Brief description of the document</li>
-                            <li><strong>Status</strong> (optional) - Document status (e.g., Draft, Active, Superseded)</li>
-                            <li><strong>Distribution</strong> (optional) - Distribution level (e.g., Internal, External, Confidential)</li>
+                            <li><strong>Document ID</strong> (required) - Unique identifier (e.g., DOC-01, SAF-001)</li>
+                            <li><strong>Document Name</strong> (required) - Full title of the document</li>
+                            <li><strong>Format</strong> (optional) - File format (.docx, .xlsx, .pdf, etc.) - default: .docx</li>
+                            <li><strong>Status</strong> (optional) - Document status (e.g., Active, Draft, Tracked — file not held, Active — Pending Signature)</li>
+                            <li><strong>Distribution</strong> (optional) - Distribution level (e.g., Internal, External (AASB), External (BDA))</li>
+                            <li><strong>Owner</strong> (optional) - Document owner/party (e.g., Internal, Calmic, BDA)</li>
+                            <li><strong>Description</strong> (optional) - Brief description or summary of the document</li>
                         </ul>
                     </div>
 
@@ -32,32 +34,40 @@
                                     <tr>
                                         <th>Document ID</th>
                                         <th>Document Name</th>
-                                        <th>Description</th>
+                                        <th>Format</th>
                                         <th>Status</th>
                                         <th>Distribution</th>
+                                        <th>Owner</th>
+                                        <th>Description</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td>DOC-001</td>
-                                        <td>Project Charter</td>
-                                        <td>Initial project charter document</td>
-                                        <td>Active</td>
+                                        <td>DOC-01</td>
+                                        <td>SPV Structuring Proposal</td>
+                                        <td>.docx</td>
+                                        <td>Tracked — file not held</td>
                                         <td>Internal</td>
+                                        <td>Internal</td>
+                                        <td>Generic five-party SPV model</td>
                                     </tr>
                                     <tr>
-                                        <td>DOC-002</td>
-                                        <td>Safety Manual</td>
-                                        <td>Site safety procedures and guidelines</td>
-                                        <td>Active</td>
-                                        <td>External</td>
+                                        <td>DOC-02</td>
+                                        <td>Salt Plant SPV & Sukuk Proposal</td>
+                                        <td>.docx</td>
+                                        <td>Tracked — file not held</td>
+                                        <td>Internal</td>
+                                        <td>Internal</td>
+                                        <td>SPV model applied to project</td>
                                     </tr>
                                     <tr>
-                                        <td>DOC-003</td>
-                                        <td>Technical Specifications</td>
-                                        <td>Detailed technical requirements</td>
-                                        <td>Draft</td>
-                                        <td>Internal</td>
+                                        <td>DOC-06</td>
+                                        <td>Mutual NDA — AASB</td>
+                                        <td>.docx</td>
+                                        <td>Active — Pending Signature</td>
+                                        <td>External (AASB)</td>
+                                        <td>Calmic</td>
+                                        <td>Mutual NDA; AASB as Project Consultant</td>
                                     </tr>
                                 </tbody>
                             </table>

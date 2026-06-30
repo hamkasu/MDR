@@ -24,7 +24,7 @@ def check_access(f):
 
 @documents_bp.route('/')
 def documents_list():
-    if current_user.role == 'consultant_limited':
+    if current_user.is_authenticated and current_user.role == 'consultant_limited':
         documents = current_user.assigned_documents
     else:
         documents = Document.query.all()
@@ -66,8 +66,8 @@ def document_detail(doc_id):
 def upload_revision(doc_id):
     doc = Document.query.get_or_404(doc_id)
 
-    if not current_user.can_upload_revision(doc):
-        flash('You do not have permission to upload revisions for this document.', 'danger')
+    if not current_user.is_authenticated or not current_user.can_upload_revision(doc):
+        flash('You must be logged in to upload revisions.', 'danger')
         return redirect(url_for('documents.document_detail', doc_id=doc_id))
 
     if request.method == 'POST':
@@ -116,7 +116,8 @@ def download_revision(doc_id, revision_id):
     doc = Document.query.get_or_404(doc_id)
     revision = Revision.query.filter_by(id=revision_id, document_id=doc_id).first_or_404()
 
-    log_activity(current_user.id, 'DOWNLOAD_REVISION', 'revision', revision_id, f'Document: {doc_id}')
+    if current_user.is_authenticated:
+        log_activity(current_user.id, 'DOWNLOAD_REVISION', 'revision', revision_id, f'Document: {doc_id}')
 
     return send_file(
         revision.file_path,

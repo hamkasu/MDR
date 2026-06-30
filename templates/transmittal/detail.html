@@ -62,7 +62,7 @@
                     {% endif %}
 
                     <div class="d-flex gap-2">
-                        {% if current_user.role in ['admin', 'consultant_full'] %}
+                        {% if current_user.is_authenticated and current_user.role in ['admin', 'consultant_full'] %}
                         <a href="{{ url_for('transmittal.edit_transmittal', tx_id=transmittal.tx_id) }}" class="btn btn-warning">
                             <i class="fas fa-edit"></i> Edit
                         </a>

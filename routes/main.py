@@ -24,7 +24,7 @@ def dashboard():
 
     unresolved_facts = SourceOfTruth.query.filter_by(status='Unresolved').all()
 
-    if current_user.role == 'consultant_limited':
+    if current_user.is_authenticated and current_user.role == 'consultant_limited':
         unresolved_facts = [
             fact for fact in unresolved_facts
             if fact.master_document in docs or any(d in docs for d in fact.related_documents)

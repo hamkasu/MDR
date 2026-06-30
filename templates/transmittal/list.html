@@ -62,7 +62,7 @@
                             </td>
                             <td>
                                 <a href="{{ url_for('transmittal.transmittal_detail', tx_id=tx.tx_id) }}" class="btn btn-sm btn-primary">View</a>
-                                {% if current_user.role in ['admin', 'consultant_full'] %}
+                                {% if current_user.is_authenticated and current_user.role in ['admin', 'consultant_full'] %}
                                 <a href="{{ url_for('transmittal.edit_transmittal', tx_id=tx.tx_id) }}" class="btn btn-sm btn-warning">Edit</a>
                                 {% endif %}
                             </td>

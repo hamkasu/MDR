@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Import Excel MDR - Document Management System{% endblock %}
+
+{% block page_title %}Import Excel Master Document Register{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Import Documents from Excel</h5>
+
+                    <div class="alert alert-info mb-4">
+                        <h6 class="alert-heading"><i class="fas fa-info-circle"></i> Excel File Format</h6>
+                        <p class="mb-2">Your Excel file should contain the following columns:</p>
+                        <ul class="mb-0">
+                            <li><strong>Document ID</strong> (required) - Unique identifier for the document</li>
+                            <li><strong>Document Name</strong> (required) - Title of the document</li>
+                            <li><strong>Description</strong> (optional) - Brief description of the document</li>
+                            <li><strong>Status</strong> (optional) - Document status (e.g., Draft, Active, Superseded)</li>
+                            <li><strong>Distribution</strong> (optional) - Distribution level (e.g., Internal, External, Confidential)</li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="mb-3">Example Excel Template:</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Document ID</th>
+                                        <th>Document Name</th>
+                                        <th>Description</th>
+                                        <th>Status</th>
+                                        <th>Distribution</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>DOC-001</td>
+                                        <td>Project Charter</td>
+                                        <td>Initial project charter document</td>
+                                        <td>Active</td>
+                                        <td>Internal</td>
+                                    </tr>
+                                    <tr>
+                                        <td>DOC-002</td>
+                                        <td>Safety Manual</td>
+                                        <td>Site safety procedures and guidelines</td>
+                                        <td>Active</td>
+                                        <td>External</td>
+                                    </tr>
+                                    <tr>
+                                        <td>DOC-003</td>
+                                        <td>Technical Specifications</td>
+                                        <td>Detailed technical requirements</td>
+                                        <td>Draft</td>
+                                        <td>Internal</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="mb-4 p-3 bg-light rounded">
+                        <h6 class="mb-2"><i class="fas fa-download"></i> Get Started</h6>
+                        <p class="mb-2">Download our template to get started:</p>
+                        <a href="{{ url_for('admin.download_template') }}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-file-download"></i> Download Template
+                        </a>
+                    </div>
+
+                    <form method="POST" enctype="multipart/form-data" class="mt-4">
+                        <div class="mb-3">
+                            <label for="file" class="form-label">Select Excel File:</label>
+                            <input type="file" class="form-control" id="file" name="file" accept=".xlsx,.xls" required>
+                            <small class="text-muted">Supported formats: .xlsx, .xls</small>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-upload"></i> Import Documents
+                            </button>
+                            <a href="{{ url_for('documents.documents_list') }}" class="btn btn-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+
+                    <div class="mt-4 p-3 bg-light rounded">
+                        <h6 class="mb-2">Import Notes:</h6>
+                        <ul class="small mb-0">
+                            <li>Duplicate Document IDs will be skipped</li>
+                            <li>Empty rows will be skipped</li>
+                            <li>The first row should contain column headers</li>
+                            <li>Column names are case-insensitive</li>
+                            <li>All documents will be created with the current date and time</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <a href="{{ url_for('admin.users_list') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Admin
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

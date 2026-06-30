@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Invoice - Document Management System{% endblock %}
+
+{% block page_title %}Edit Invoice {{ invoice.invoice_number }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <form method="POST" class="invoice-form">
+                <!-- Supplier & Dates -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label"><strong>Supplier *</strong></label>
+                                <select name="supplier_id" class="form-select" required>
+                                    {% for supplier in suppliers %}
+                                    <option value="{{ supplier.id }}" {% if supplier.id == invoice.supplier_id %}selected{% endif %}>{{ supplier.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label"><strong>Bill Date *</strong></label>
+                                <input type="text" name="bill_date" class="form-control" value="{{ invoice.bill_date.strftime('%m/%d/%Y') }}" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label"><strong>Due Date</strong></label>
+                                <input type="text" name="due_date" class="form-control" value="{{ invoice.due_date.strftime('%m/%d/%Y') if invoice.due_date else '' }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Invoice Details -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label"><strong>Invoice Number *</strong></label>
+                                <input type="text" name="invoice_number" class="form-control" value="{{ invoice.invoice_number }}" readonly>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label"><strong>Supplier Invoice No.</strong></label>
+                                <input type="text" name="supplier_invoice_no" class="form-control" value="{{ invoice.supplier_invoice_no or '' }}">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label"><strong>Linked PO</strong></label>
+                                <input type="text" name="linked_po" class="form-control" value="{{ invoice.linked_po or '' }}">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label"><strong>Reference</strong></label>
+                                <input type="text" name="reference" class="form-control" value="{{ invoice.reference or '' }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Currency & Status -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label"><strong>Currency</strong></label>
+                                <select name="currency" class="form-select">
+                                    {% for currency in currencies %}
+                                    <option value="{{ currency }}" {% if currency == invoice.currency %}selected{% endif %}>{{ currency }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label"><strong>Exchange Rate</strong></label>
+                                <input type="number" name="exchange_rate" class="form-control" step="0.01" value="{{ invoice.exchange_rate }}">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label"><strong>Exchange Currency</strong></label>
+                                <select name="exchange_rate_currency" class="form-select">
+                                    <option value="MYR" {% if invoice.exchange_rate_currency == 'MYR' %}selected{% endif %}>MYR</option>
+                                    <option value="SGD" {% if invoice.exchange_rate_currency == 'SGD' %}selected{% endif %}>SGD</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label"><strong>Status</strong></label>
+                                <select name="status" class="form-select">
+                                    <option value="Pending" {% if invoice.status == 'Pending' %}selected{% endif %}>Pending</option>
+                                    <option value="Approved" {% if invoice.status == 'Approved' %}selected{% endif %}>Approved</option>
+                                    <option value="Paid" {% if invoice.status == 'Paid' %}selected{% endif %}>Paid</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Line Items -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Line Items</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="lineItemsTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 40%;">Description</th>
+                                        <th style="width: 15%;">Expense Account</th>
+                                        <th style="width: 10%;">QTY</th>
+                                        <th style="width: 12%;">Unit Price</th>
+                                        <th style="width: 10%;">Tax %</th>
+                                        <th style="width: 10%;">Line Total</th>
+                                        <th style="width: 3%;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="lineItemsBody">
+                                    {% for item in invoice.line_items %}
+                                    <tr class="line-item-row">
+                                        <td><textarea class="form-control form-control-sm" placeholder="Item description" style="resize: none; height: 40px;">{{ item.description }}</textarea></td>
+                                        <td><input type="text" class="form-control form-control-sm" placeholder="— Account —" value="{{ item.expense_account or '' }}"></td>
+                                        <td><input type="number" class="form-control form-control-sm quantity" step="0.01" value="{{ item.quantity }}"></td>
+                                        <td><input type="number" class="form-control form-control-sm unit-price" step="0.01" value="{{ item.unit_price }}"></td>
+                                        <td><input type="number" class="form-control form-control-sm tax-percent" step="0.01" value="{{ item.tax_percent }}"></td>
+                                        <td><input type="text" class="form-control form-control-sm line-total" readonly value="{{ "%.2f"|format(item.line_total) }}"></td>
+                                        <td><button type="button" class="btn btn-sm btn-danger remove-line">×</button></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-secondary" id="addLineBtn">+ Add Line</button>
+                    </div>
+                </div>
+
+                <!-- Totals -->
+                <div class="row">
+                    <div class="col-md-8"></div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Subtotal</span>
+                                    <strong id="subtotal">{{ "%.2f"|format(invoice.subtotal) }}</strong>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Tax</span>
+                                    <strong id="tax">{{ "%.2f"|format(invoice.tax_amount) }}</strong>
+                                </div>
+                                <hr>
+                                <div class="d-flex justify-content-between" style="font-size: 1.2rem;">
+                                    <span>Total</span>
+                                    <strong id="total">{{ "%.2f"|format(invoice.total_amount) }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <label class="form-label"><strong>Notes</strong></label>
+                        <textarea name="notes" class="form-control" rows="3">{{ invoice.notes or '' }}</textarea>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="mt-4 mb-4">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-save"></i> Update Invoice
+                    </button>
+                    <a href="{{ url_for('invoices.invoice_detail', invoice_id=invoice.id) }}" class="btn btn-secondary btn-lg">Cancel</a>
+                </div>
+
+                <input type="hidden" name="line_items" id="lineItemsInput">
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('addLineBtn').addEventListener('click', addLineItem);
+document.getElementById('lineItemsBody').addEventListener('change', calculateTotals);
+document.getElementById('lineItemsBody').addEventListener('input', calculateTotals);
+
+function addLineItem() {
+    const tbody = document.getElementById('lineItemsBody');
+    const newRow = document.createElement('tr');
+    newRow.className = 'line-item-row';
+    newRow.innerHTML = `
+        <td><textarea class="form-control form-control-sm" placeholder="Item description" style="resize: none; height: 40px;"></textarea></td>
+        <td><input type="text" class="form-control form-control-sm" placeholder="— Account —"></td>
+        <td><input type="number" class="form-control form-control-sm quantity" step="0.01" value="1"></td>
+        <td><input type="number" class="form-control form-control-sm unit-price" step="0.01" value="0"></td>
+        <td><input type="number" class="form-control form-control-sm tax-percent" step="0.01" value="0"></td>
+        <td><input type="text" class="form-control form-control-sm line-total" readonly value="0.00"></td>
+        <td><button type="button" class="btn btn-sm btn-danger remove-line">×</button></td>
+    `;
+    tbody.appendChild(newRow);
+}
+
+document.getElementById('lineItemsBody').addEventListener('click', function(e) {
+    if (e.target.classList.contains('remove-line')) {
+        e.preventDefault();
+        e.target.closest('tr').remove();
+        calculateTotals();
+    }
+});
+
+function calculateTotals() {
+    const rows = document.querySelectorAll('.line-item-row');
+    let subtotal = 0, taxTotal = 0;
+
+    rows.forEach(row => {
+        const qty = parseFloat(row.querySelector('.quantity').value) || 0;
+        const unitPrice = parseFloat(row.querySelector('.unit-price').value) || 0;
+        const taxPercent = parseFloat(row.querySelector('.tax-percent').value) || 0;
+        const lineTotal = qty * unitPrice;
+        const taxAmount = lineTotal * (taxPercent / 100);
+
+        row.querySelector('.line-total').value = lineTotal.toFixed(2);
+        subtotal += lineTotal;
+        taxTotal += taxAmount;
+    });
+
+    document.getElementById('subtotal').textContent = subtotal.toFixed(2);
+    document.getElementById('tax').textContent = taxTotal.toFixed(2);
+    document.getElementById('total').textContent = (subtotal + taxTotal).toFixed(2);
+
+    serializeLineItems();
+}
+
+function serializeLineItems() {
+    const rows = document.querySelectorAll('.line-item-row');
+    const lineItems = [];
+
+    rows.forEach(row => {
+        lineItems.push({
+            description: row.querySelector('textarea').value,
+            expense_account: row.querySelectorAll('input')[1].value,
+            quantity: parseFloat(row.querySelector('.quantity').value) || 0,
+            unit_price: parseFloat(row.querySelector('.unit-price').value) || 0,
+            tax_percent: parseFloat(row.querySelector('.tax-percent').value) || 0
+        });
+    });
+
+    document.getElementById('lineItemsInput').value = JSON.stringify(lineItems);
+}
+
+calculateTotals();
+</script>
+{% endblock %}

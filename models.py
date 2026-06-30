@@ -148,3 +148,75 @@ class ActivityLog(db.Model):
 
     def __repr__(self):
         return f'<ActivityLog {self.action} on {self.target_table}>'
+
+class Supplier(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False, unique=True, index=True)
+    contact_email = db.Column(db.String(120))
+    contact_phone = db.Column(db.String(20))
+    default_currency = db.Column(db.String(3), nullable=False, default='USD')
+    notes = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    invoices = db.relationship('Invoice', backref='supplier', lazy=True)
+
+    def __repr__(self):
+        return f'<Supplier {self.name}>'
+
+class Currency(db.Model):
+    code = db.Column(db.String(3), primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    symbol = db.Column(db.String(5))
+
+    def __repr__(self):
+        return f'<Currency {self.code} {self.name}>'
+
+class Invoice(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    invoice_number = db.Column(db.String(50), nullable=False, unique=True, index=True)
+    supplier_id = db.Column(db.Integer, db.ForeignKey('supplier.id'), nullable=False, index=True)
+    supplier_invoice_no = db.Column(db.String(100))
+    bill_date = db.Column(db.Date, nullable=False)
+    due_date = db.Column(db.Date)
+    currency = db.Column(db.String(3), nullable=False, default='USD')
+    exchange_rate = db.Column(db.Float, default=1.0)
+    exchange_rate_currency = db.Column(db.String(3), default='MYR')
+    linked_po = db.Column(db.String(50))
+    reference = db.Column(db.String(255))
+    subtotal = db.Column(db.Float, default=0.0)
+    tax_amount = db.Column(db.Float, default=0.0)
+    total_amount = db.Column(db.Float, default=0.0)
+    total_amount_local = db.Column(db.Float, default=0.0)
+    status = db.Column(db.String(20), nullable=False, default='Pending')
+    notes = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    line_items = db.relationship('InvoiceLineItem', backref='invoice', lazy=True, cascade='all, delete-orphan')
+
+    def calculate_totals(self):
+        self.subtotal = sum(item.line_total for item in self.line_items)
+        self.tax_amount = sum(item.tax_amount for item in self.line_items)
+        self.total_amount = self.subtotal + self.tax_amount
+        self.total_amount_local = self.total_amount * self.exchange_rate
+
+    def __repr__(self):
+        return f'<Invoice {self.invoice_number}>'
+
+class InvoiceLineItem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    invoice_id = db.Column(db.Integer, db.ForeignKey('invoice.id'), nullable=False, index=True)
+    description = db.Column(db.Text, nullable=False)
+    expense_account = db.Column(db.String(100))
+    quantity = db.Column(db.Float, nullable=False, default=1)
+    unit_price = db.Column(db.Float, nullable=False)
+    tax_percent = db.Column(db.Float, default=0)
+    line_total = db.Column(db.Float, default=0.0)
+    tax_amount = db.Column(db.Float, default=0.0)
+
+    def calculate_totals(self):
+        self.line_total = self.quantity * self.unit_price
+        self.tax_amount = self.line_total * (self.tax_percent / 100)
+
+    def __repr__(self):
+        return f'<InvoiceLineItem {self.description}>'

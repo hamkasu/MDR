@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Invoices - Document Management System{% endblock %}
+
+{% block page_title %}Invoices{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <a href="?status=" class="btn btn-outline-secondary {% if not request.args.get('status') %}active{% endif %}">All</a>
+                    <a href="?status=Pending" class="btn btn-outline-warning {% if request.args.get('status') == 'Pending' %}active{% endif %}">Pending</a>
+                    <a href="?status=Approved" class="btn btn-outline-success {% if request.args.get('status') == 'Approved' %}active{% endif %}">Approved</a>
+                    <a href="?status=Paid" class="btn btn-outline-info {% if request.args.get('status') == 'Paid' %}active{% endif %}">Paid</a>
+                </div>
+                <a href="{{ url_for('invoices.new_invoice') }}" class="btn btn-success">
+                    <i class="fas fa-plus"></i> New Invoice
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Invoice No.</th>
+                            <th>Supplier</th>
+                            <th>Bill Date</th>
+                            <th>Due Date</th>
+                            <th>Amount</th>
+                            <th>Currency</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for invoice in invoices %}
+                        <tr>
+                            <td><strong>{{ invoice.invoice_number }}</strong></td>
+                            <td>{{ invoice.supplier.name }}</td>
+                            <td>{{ invoice.bill_date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ invoice.due_date.strftime('%Y-%m-%d') if invoice.due_date else 'N/A' }}</td>
+                            <td>{{ "%.2f"|format(invoice.total_amount) }}</td>
+                            <td><span class="badge bg-secondary">{{ invoice.currency }}</span></td>
+                            <td>
+                                {% if invoice.status == 'Pending' %}
+                                <span class="badge bg-warning">Pending</span>
+                                {% elif invoice.status == 'Approved' %}
+                                <span class="badge bg-success">Approved</span>
+                                {% elif invoice.status == 'Paid' %}
+                                <span class="badge bg-info">Paid</span>
+                                {% else %}
+                                <span class="badge bg-secondary">{{ invoice.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('invoices.invoice_detail', invoice_id=invoice.id) }}" class="btn btn-sm btn-primary">View</a>
+                                <a href="{{ url_for('invoices.edit_invoice', invoice_id=invoice.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if not invoices %}
+            <div class="alert alert-info">No invoices found.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

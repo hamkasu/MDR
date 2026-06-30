@@ -47,6 +47,7 @@ def create_app(config_name=None):
         from routes.admin import admin_bp
         from routes.transmittal import transmittal_bp
         from routes.source_of_truth import sot_bp
+        from routes.invoices import invoices_bp
 
         app.register_blueprint(auth_bp)
         app.register_blueprint(main_bp)
@@ -54,6 +55,7 @@ def create_app(config_name=None):
         app.register_blueprint(admin_bp)
         app.register_blueprint(transmittal_bp)
         app.register_blueprint(sot_bp)
+        app.register_blueprint(invoices_bp)
 
         @app.context_processor
         def inject_user():

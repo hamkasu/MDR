@@ -10,18 +10,20 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="d-flex gap-2 flex-wrap">
-                {% if current_user.is_authenticated and current_user.role in ['admin', 'consultant_full'] %}
-                <a href="{{ url_for('documents.documents_list') }}" class="btn btn-success">
-                    <i class="fas fa-plus"></i> New Document
-                </a>
-                {% if current_user.role == 'admin' %}
                 <a href="{{ url_for('admin.import_excel') }}" class="btn btn-info">
                     <i class="fas fa-upload"></i> Import Excel MDR
                 </a>
-                <a href="{{ url_for('admin.add_user') }}" class="btn btn-secondary">
-                    <i class="fas fa-user-plus"></i> Add User
-                </a>
-                {% endif %}
+                {% if current_user.is_authenticated %}
+                    {% if current_user.role in ['admin', 'consultant_full'] %}
+                    <a href="{{ url_for('documents.documents_list') }}" class="btn btn-success">
+                        <i class="fas fa-plus"></i> New Document
+                    </a>
+                    {% endif %}
+                    {% if current_user.role == 'admin' %}
+                    <a href="{{ url_for('admin.add_user') }}" class="btn btn-secondary">
+                        <i class="fas fa-user-plus"></i> Add User
+                    </a>
+                    {% endif %}
                 {% endif %}
             </div>
         </div>

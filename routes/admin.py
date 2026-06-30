@@ -105,8 +105,6 @@ def delete_user(user_id):
     return redirect(url_for('admin.users_list'))
 
 @admin_bp.route('/import-excel', methods=['GET', 'POST'])
-@login_required
-@admin_required
 def import_excel():
     if request.method == 'POST':
         if not openpyxl:
@@ -193,8 +191,6 @@ def import_excel():
     return render_template('admin/import_excel.html')
 
 @admin_bp.route('/download-template')
-@login_required
-@admin_required
 def download_template():
     if not openpyxl:
         flash('Template generation requires openpyxl library.', 'danger')

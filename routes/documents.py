@@ -23,7 +23,6 @@ def check_access(f):
     return decorated_function
 
 @documents_bp.route('/')
-@login_required
 def documents_list():
     if current_user.role == 'consultant_limited':
         documents = current_user.assigned_documents
@@ -48,7 +47,6 @@ def documents_list():
     return render_template('documents/list.html', documents=documents)
 
 @documents_bp.route('/<doc_id>')
-@login_required
 @check_access
 def document_detail(doc_id):
     doc = Document.query.get_or_404(doc_id)
@@ -64,7 +62,6 @@ def document_detail(doc_id):
     )
 
 @documents_bp.route('/<doc_id>/revisions/new', methods=['GET', 'POST'])
-@login_required
 @check_access
 def upload_revision(doc_id):
     doc = Document.query.get_or_404(doc_id)
@@ -114,7 +111,6 @@ def upload_revision(doc_id):
     return render_template('documents/upload_revision.html', document=doc)
 
 @documents_bp.route('/<doc_id>/revisions/<int:revision_id>/download')
-@login_required
 @check_access
 def download_revision(doc_id, revision_id):
     doc = Document.query.get_or_404(doc_id)

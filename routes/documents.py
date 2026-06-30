@@ -23,6 +23,7 @@ def check_access(f):
     return decorated_function
 
 @documents_bp.route('/')
+@login_required
 def documents_list():
     if current_user.is_authenticated and current_user.role == 'consultant_limited':
         documents = current_user.assigned_documents

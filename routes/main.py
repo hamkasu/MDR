@@ -6,6 +6,7 @@ from sqlalchemy import or_
 main_bp = Blueprint('main', __name__)
 
 @main_bp.route('/')
+@login_required
 def dashboard():
     if current_user.is_authenticated and current_user.role == 'consultant_limited':
         docs = current_user.assigned_documents

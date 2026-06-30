@@ -127,10 +127,21 @@ def import_excel():
             headers = {}
             for col_idx, cell in enumerate(ws[1], 1):
                 if cell.value:
-                    headers[cell.value.lower().strip()] = col_idx
+                    header_key = cell.value.lower().strip()
+                    headers[header_key] = col_idx
 
-            required_fields = {'document id', 'document name'}
-            if not required_fields.issubset(set(headers.keys())):
+            def find_header(headers, *keywords):
+                for keyword in keywords:
+                    keyword_lower = keyword.lower()
+                    for header_key, col_idx in headers.items():
+                        if keyword_lower in header_key or header_key in keyword_lower:
+                            return col_idx
+                return None
+
+            doc_id_col = find_header(headers, 'doc id', 'document id', 'doc_id')
+            doc_name_col = find_header(headers, 'document name', 'name', 'doc name')
+
+            if not doc_id_col or not doc_name_col:
                 flash('Excel file must contain "Document ID" and "Document Name" columns.', 'danger')
                 return redirect(url_for('admin.import_excel'))
 
@@ -138,13 +149,16 @@ def import_excel():
             skipped = 0
             errors = []
 
+            format_col = find_header(headers, 'format')
+            description_col = find_header(headers, 'description', 'desc')
+            status_col = find_header(headers, 'status')
+            distribution_col = find_header(headers, 'distribution', 'dist')
+            owner_col = find_header(headers, 'owner', 'owner party')
+
             for row_idx, row in enumerate(ws.iter_rows(min_row=2, values_only=False), 2):
                 try:
-                    doc_id_cell = row[headers.get('document id', 1) - 1]
-                    doc_name_cell = row[headers.get('document name', 1) - 1]
-
-                    doc_id = doc_id_cell.value
-                    doc_name = doc_name_cell.value
+                    doc_id = row[doc_id_col - 1].value
+                    doc_name = row[doc_name_col - 1].value
 
                     if not doc_id or not doc_name:
                         skipped += 1
@@ -154,11 +168,11 @@ def import_excel():
                         skipped += 1
                         continue
 
-                    doc_format = row[headers.get('format', 1) - 1].value if 'format' in headers else '.docx'
-                    description = row[headers.get('description', 1) - 1].value if 'description' in headers else ''
-                    status = row[headers.get('status', 1) - 1].value if 'status' in headers else 'Draft'
-                    distribution = row[headers.get('distribution', 1) - 1].value if 'distribution' in headers else 'Internal'
-                    owner_party = row[headers.get('owner', 1) - 1].value if 'owner' in headers else 'Internal'
+                    doc_format = row[format_col - 1].value if format_col else '.docx'
+                    description = row[description_col - 1].value if description_col else ''
+                    status = row[status_col - 1].value if status_col else 'Draft'
+                    distribution = row[distribution_col - 1].value if distribution_col else 'Internal'
+                    owner_party = row[owner_col - 1].value if owner_col else 'Internal'
 
                     doc = Document(
                         doc_id=str(doc_id),
